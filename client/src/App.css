@@ -1,3 +1,19 @@
+.border{
+  border: 1 px black;
+  padding: '10px';
+  margin: '10px';
+}
+.border .border{
+  border: 1 px rgb(235, 68, 179);
+  padding: '10px';
+  margin: '10px';
+}
+.border .border .border{
+  border: 1 px rgb(76, 120, 240);
+  padding: '10px';
+  margin: '10px';
+}
+
 .App {
   text-align: center;
 }
