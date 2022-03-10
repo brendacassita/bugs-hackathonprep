@@ -36,6 +36,7 @@ end
   7. !!!test!!! in postman
   8. push github have everyone pull from github
 
+
   # FRONTEND
   1. react/router: Pages and Routing/Nav
   2. create stub out react components
@@ -46,15 +47,39 @@ end
   
 
   # SATURDAY
+  # IF YOU WANT DIVIDE AND CONQUER (YOU CAN STILL AS A GROUP)
+
+  # BACKEND
+  6. start filling out controllers
+  7. !!!test!!! in postman
+  8. push github have everyone pull from github
   
 
 
   
   
   # GITHUB STUFF
+  - have team members clone once (see cloning instructions)
   - add team members to github
-  - clone once (see cloning instructions)
-  
+    - repo settings > collabators > add
+  - team members need to confirm add in email.
+  - everyone should be able to push and pull to github(be careful!)
+
+  ### Pushing
+  ```
+  when you are ready to push to github
+  $ git add .
+  $ git commit -m 'what you did'
+  $ git pull origin master
+  // here you merge any conflicts...
+  // communicate with team about which changes to keep
+  // if you did have a conflict you need to commit again
+  $ git add .
+  $ git commit - m'merged conflict'
+  $ git push origin master
+  // tell everyone on your team you pushed to master
+  ```
+
 
   
   ### Cloning
