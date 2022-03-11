@@ -87,6 +87,22 @@ b2.treatments.create(name:'Sleep', success_rate:80)
 puts "BUGS: #{Bug.all.count}"
 puts "TREATMENTS: #{Treatment.all.count}"
 ```
+  
+
+# Useful lib for fake data
+gem 'faker', :git => 'https://github.com/faker-ruby/faker.git', :branch => 'main'  
+```ruby
+require "faker"
+
+10.times do
+  Page.create(
+    title: Faker::Hacker.abbreviation,
+    body: Faker::Hacker.say_something_smart,
+    author: Faker::Name.name,
+  )
+end  
+  
+```
 
 
 routes.rb
