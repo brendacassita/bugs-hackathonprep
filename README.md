@@ -18,9 +18,6 @@ $ rails console
 $ rails g controller api/foods
 ```
 
-food.rb - add:
-has_many :food_types, dependent: destroy
-
 
 - ADD TO GEMFILE
 ```ruby
@@ -32,7 +29,7 @@ group :development do
 end
 ```
 
-run bundle
+- run bundle
 
 
 # 2. create REACT app
@@ -44,8 +41,10 @@ $ yarn add axios
 $ yarn add react-router-dom@6
 ```
 
-add to:
-Package.Json "proxy": 'http://localhost:3001'
+add to package.json:
+```javascript
+ "proxy": 'http://localhost:3001'
+```
 
 Github:
 ```
@@ -62,134 +61,147 @@ $ 'ctrl c' to stop your terminal
 # BACKEND
  models: rails g model <thing><keys>(<foreign key>:belongs_to)
   
+has_many in Bug.rb
 ```ruby
-has_many: in food.rb
-has_many :food_types , dependent: :destroy
+    has_many :treatments, dependent: :destroy
 end
 ```
-second model
+belongs_to in second model
 ```ruby
 belongs_to :bug
 end
-seeds file
-Food.destroy_all 
-f1= Food.create(name:'Pizza',stars: 5)
-f2= Food.create(name:'Pasta',stars: 4.5)
-
-f1.Food_types.create(name:'Italian',country:'Italy')
-f2.Food_types.create(name:'Italian',country:'Italy')
-
-puts"Foods: #{Food.all.size}"
-puts"Food_type: #{Food.all.size}"
 ```
 
+seeds file
 ```ruby
+Bug.destroy_all
+ 
+b1 = Bug.create(name:'covid', bug_type:'Virus')
+b2 = Bug.create(name:'ecoli', bug_type:'Bacteria')
+
+b1.treatments.create(name:'Pfizer', success_rate:70)
+b1.treatments.create(name:'J&J', success_rate:70)
+b2.treatments.create(name:'Penicillin', success_rate:50)
+b2.treatments.create(name:'Sleep', success_rate:80)
+
+puts "BUGS: #{Bug.all.count}"
+puts "TREATMENTS: #{Treatment.all.count}"
+```
+
+
 routes.rb
+```ruby
 Rails.application.routes.draw do
 namespace :api do
-  resources :foods do 
-    resources :food_types
-end
-end
+   resources :bugs do
+      resources :treatments
+    end
+  end
 end
 ```
 
-foods.controller.rb:
+bugs_controller.rb:
 ```ruby
-before_action :set_food, only:[:show, :update, :destroy]
+before_action :set_bug, only: [:update, :show, :destroy, :bugs_all]
+  
+  def index
+    render json: Bug.all
+  end
 
-def index
-    render json: Food.all
-end
+  def bugs_all
+      render json: {bug: @bug, treatments: @bug.treatments}
+  end
 
-def show
-    render json: @food
-end
 
-def create
-    food = Food.new(food_params)
-    if(food.save)
-        render json: food
+  def show
+      render json: @bug
+  end
+
+  def create
+    bug = Bug.new(bug_params)
+    if(bug.save)
+      render json: bug
     else
-        render json: {errors: food.errors.full_messages}, status: 422
+      render json: {error:bug.errors.full_messages}, status: 422
     end
-end
+  end
 
-def update
-    if(@food.update(food_params))
-        render json: @food
-    else
-        render json: {errors: food.errors.full_messages}, status: 422
-    end
-end
+  def update
+      if(@bug.update(bug_params))
+          render json: @bug
+      else
+          render json: {error:@bug.errors.full_messages}, status: 422
+      end
+  end
 
-def destroy
-    render json: @food.destroy
-end
+  def destroy
+      render json: @bug.destroy
+  end
 
+  private
 
-private
+  def set_bug
+      @bug = Bug.find(params[:id])
+  end
 
-def set_food
-    @food = Food.find(params[:id])
-end
-
-def food_params
-    params.require(:food).permit(:name, :stars)
-end
-
+  def bug_params
+    params.require(:bug).permit(:name,:bug_type)
+  end
 end
 ```
 
+treatments_controller.rb  
 ```ruby
-food_types_controller.rb:
-before_action :set_food
-before_action :set_food_type, only:[:show, :update, :destroy]
+before_action :set_bug
+  before_action :set_treatment, only:[:show, :update, :destroy]
+  # give me all treaments of specific bug
+  # get 'api/bugs/:bug_id/treatments''
+  # let res = await axios.get('/api/bugs/1/treatments')
+  def index
+      render json:  @bug.treatments
+  end
 
-def index
-    render json: @food.food_types
-end
+  # get on treatment of specific bug
+  # get 'api/bugs/:bug_id/treatments/:id''
+  # let res = await axios.get('/api/bugs/2/treatments/1')
+  def show
+      render json: @treatment
+  end
 
-def show
-    render json: @food_type
-end
-
-def create
-    food_type = @food.food_types.new(food_type_params)
-    if(food_type.save)
-        render json: food_type
+  def create
+    treatment = @bug.treatments.new(treatment_params)
+    if(treatment.save)
+      render json: treatment
     else
-        render json: {errors: food_type.errors.full_messages}, status: 422
+      render json: {errors: treatment.errors.full_messages}, status: 422
     end
-end
+  end
 
-def update
-    if(@food_type.update(food_type_params))
-        render json: @food_type
-    else
-        render json: {errors: food_type.errors.full_messages}, status: 422
-    end
-end
+ 
+  def update
+      if(@treatment.update(treatment_params))
+        render json: @treatment
+      else
+        render json: {errors: @treatment.errors.full_messages}, status: 422
+      end
+  end
 
-def destroy
-    render json: @food_type.destroy
-end
+  def destroy
+      render json: @treatment.destroy
+  end
 
+  private 
+  def set_bug
+      @bug = Bug.find(params[:bug_id])
+  end
 
-private
+  def set_treatment
+      @treatment = @bug.treatments.find(params[:id])
+  end
 
-def set_food
-    @food = Food.find(params[:food_id])
-end
-
-def set_food_type
-    @food_type = @food.food_types.find(params[:id])
-end
-
-def food_type_params
-    params.require(:food_type).permit(:name, :country)
-end
-
+  def treatment_params
+    params.require(:treatment).permit(:success_rate, :name)
+  end
 end
 ```
 
@@ -216,8 +228,7 @@ import About from './pages/About';
         <Route path='about' element={<About />} />
         <Route path='bugs/:id' element={<BugShow />} />
         <Route path='bugs/new' element={<BugForm />} />
-        <Route path='bugs/:id/edit' element={<BugForm />} />
-       
+        <Route path='bugs/:id/edit' element={<BugForm />} /> 
       </Route>
     </Routes>
   </BrowserRouter>,
